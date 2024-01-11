@@ -10,11 +10,11 @@ fn main() -> io::Result<()> {
     let mode = "t";
 
     let filename: String = String::from("images/blunk.png");
-    let sizex: u32 = 1280; // size of the image
-    let sizey: u32 = 720;
+    let sizex: u32 = 500; // size of the image
+    let sizey: u32 = 500;
 
-    let xoff: u32 = 0; // offset from the top left corner
-    let yoff: u32 = 50;
+    let xoff: u32 = 450; // offset from the top left corner
+    let yoff: u32 = 150;
 
     // let looping: bool = false; // whether to loop the draw cycle or not
     let shuffle: bool = false; // whether to randomize the sequence of the commands, creating a dithering effect
@@ -26,7 +26,10 @@ fn main() -> io::Result<()> {
     if mode == "w" {
         cmds = cmd::wipe(sizex, sizey); // wipes screen
     } else if mode == "t" {
-        cmds = cmd::process_image(&text::render_text("the human mind cannot comprehend how monumentally back we are".to_string(), 30.0, (255, 255, 255)), xoff, yoff)
+        let txt = "quite remarkable indeed".to_string();
+        let size = 30.0;
+        let color = (255, 255, 255); // if it goes above 30 it freaks out :3
+        cmds = cmd::process_image(&text::render_text(txt, size, color), xoff, yoff)
     } else {
         let img = cmd::read_image(filename, sizex, sizey); // reads image (check function def for details)
         cmds = cmd::process_image(&img, xoff, yoff); // processes image, generating commands

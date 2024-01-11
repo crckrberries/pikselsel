@@ -9,14 +9,14 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color {
-        return Color {
-            r,
-            g,
-            b,
-            a
-        }
-    }
+    // pub fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color {
+    //     return Color {
+    //         r,
+    //         g,
+    //         b,
+    //         a
+    //     }
+    // }
 
     // pub fn hexify(c: Color) -> String {
     //     return String::from(format!("{:02x}{:02x}{:02x}", c.r, c.g, c.b))
