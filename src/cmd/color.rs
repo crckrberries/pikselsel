@@ -20,8 +20,8 @@ impl Color {
     //     return String::from(format!("{:02x}{:02x}{:02x}", c.r, c.g, c.b))
     // }
 
-    pub fn hexify_rgb(r: u8, g: u8, b: u8) -> String {
+    pub fn hexify_rgb(r: u8, g: u8, b: u8, a: u8) -> String {
         // turns rgb values into a hexadecimal color code
-        return String::from(format!("{:02x}{:02x}{:02x}", r, g, b));
+        return String::from(format!("{:02x}{:02x}{:02x}{:02x}", r, g, b, a));
     }
 }

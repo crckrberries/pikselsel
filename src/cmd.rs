@@ -36,14 +36,13 @@ pub fn process_image(
     for x in 0..image.width() {
         for y in 0..image.height() {
             let pixel = image.get_pixel(x, y); // gets the pixel
-            // if pixel[3] == 0 {continue;} // if fully transparent, ignore
 
             let str = format!(
                 // creates the command
                 "PX {} {} {}\n",
                 x + offsetx,
                 y + offsety,
-                color::Color::hexify_rgb(pixel[0], pixel[1], pixel[2])
+                color::Color::hexify_rgb(pixel[0], pixel[1], pixel[2], pixel[3])
             );
             commands.push(str); // pushes to command to list of commands
         }
