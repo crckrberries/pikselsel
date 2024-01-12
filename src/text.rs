@@ -2,7 +2,7 @@ use image::{DynamicImage, Rgba, ImageBuffer};
 use rusttype::{Font, point, Scale};
 
 pub fn render_text(text: String, s: f32, color: (u8, u8, u8)) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-    let margin = 40;
+    let margin = 80;
     let font = Font::try_from_bytes(include_bytes!("../fonts/Arial.ttf") as &[u8]).expect("oh nooooooo");
     let scale = Scale::uniform(s);
     let vmetrics = font.v_metrics(scale);
@@ -27,6 +27,9 @@ pub fn render_text(text: String, s: f32, color: (u8, u8, u8)) -> ImageBuffer<Rgb
     for g in glyphs {
         if let Some(bound) = g.pixel_bounding_box() {
             g.draw(|x, y, v| {
+                if v < 0.001 {
+                    return;
+                }
                 img.put_pixel(
                     x + bound.min.x as u32,
                     y + bound.min.y as u32,
