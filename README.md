@@ -4,6 +4,7 @@ A [pixelflut](https://github.com/defnull/pixelflut) client written in Rust. It c
 The name comes from the turkish words for "pixel" and "flood", which are "piksel" and "sel" respectively. This is basically a rust version of my other client, pyxelflut (written in python), and I aim to fully add the feature set of that client into this one.
 
 TODO:
-- add command line arguments
+- add command line arguments (partially, VERY partially, AN EXTREMELY GENEROUS USE OF THE WORD partially done)
 - add the ability to switch between all of the features (tiling, random placement etc)
 - fix that text bug
+- add threading
