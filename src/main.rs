@@ -6,18 +6,6 @@ mod cmd;
 mod sender;
 mod text;
 
-// #[derive(Default, Parser, Debug)]
-// struct Cli {
-//     /// the mode of the program - you can currently pick between wipe, image, and text
-//     mode: String,
-//     file: String,
-//     host: String,
-//     size: String,
-
-//     #[arg(long, short = 's', value_name = "SHUFFLE", default_value_t = false)]
-//     shuffle: bool,
-// }
-
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
