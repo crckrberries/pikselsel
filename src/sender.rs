@@ -9,3 +9,9 @@ pub fn send(commands: Vec<String>, host: &str) {
         writer.write(cmd.as_bytes()).unwrap();
     }
 }
+
+pub fn sendloop(commands: Vec<String>, host: &str) {
+    loop {
+        send(commands.clone(), host)
+    }
+}
