@@ -1,26 +1,39 @@
 use std::fs::File;
 
-use colored::{self, Colorize};
-use image::{self, imageops::{FilterType::Nearest, self}, ImageBuffer, codecs::gif, AnimationDecoder};
 use crate::frame;
+use colored::{self, Colorize};
+use image::{
+    self,
+    codecs::gif,
+    imageops::{self, FilterType::Nearest},
+    AnimationDecoder, ImageBuffer,
+};
 
 // this module contains the command generation functions
 
 pub fn read_gif(filename: String) -> Vec<image::Frame> {
     let gif = File::open(filename).expect("couldnt open gif");
     let dec = gif::GifDecoder::new(gif).expect("thats not a gif!!");
-    let frames = dec.into_frames().collect_frames().expect("could not decode gif");
+    let frames = dec
+        .into_frames()
+        .collect_frames()
+        .expect("could not decode gif");
 
     return frames;
 }
 
-pub fn process_gif(frames: Vec<image::Frame>, sizex: u32, sizey: u32) -> Vec<frame::Frame>{
+pub fn process_gif(frames: Vec<image::Frame>, sizex: u32, sizey: u32) -> Vec<frame::Frame> {
     let mut framelist: Vec<frame::Frame> = vec![];
+    let mut buffer = image::ImageBuffer::new(sizex, sizey);
     for frame in frames {
         let delay = frame.delay().numer_denom_ms().0;
         let frame = imageops::resize(frame.buffer(), sizex, sizey, Nearest);
-        let cmds = process_image(&frame, 0, 0);
-        framelist.push(frame::Frame {commands: cmds, delay});
+        let cmds = process_image_delta(&frame, &buffer, 0, 0);
+        framelist.push(frame::Frame {
+            commands: cmds,
+            delay,
+        });
+        buffer = frame;
     }
 
     return framelist;
@@ -77,7 +90,34 @@ pub fn process_image(
             );
             commands.push(str); // pushes to command to list of commands
         }
+    }
 
+    println!("Processed frame");
+    return commands;
+}
+
+pub fn process_image_delta(
+    image: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
+    buffer: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
+    offsetx: u32,
+    offsety: u32,
+) -> Vec<String> {
+    let mut commands: Vec<String> = Vec::new();
+    for x in 0..image.width() {
+        for y in 0..image.height() {
+            let pixel = image.get_pixel(x, y); // gets the pixel
+
+            if pixel != buffer.get_pixel(x, y) {
+                let str = format!(
+                    // creates the command
+                    "PX {} {} {}\n",
+                    x + offsetx,
+                    y + offsety,
+                    frame::Color::hexify_rgb(pixel[0], pixel[1], pixel[2], pixel[3])
+                );
+                commands.push(str); // pushes to command to list of commands
+            }
+        }
     }
 
     println!("Processed frame");

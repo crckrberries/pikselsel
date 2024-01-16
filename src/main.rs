@@ -29,23 +29,31 @@ struct Cli {
 enum Commands {
     /// send an image to the pixelflut canvas
     Img {
+        /// path to the image
         path: String,
+        /// size of the image (formatted as NUMxNUM)
         size: String,
     },
 
     /// wipe the pixelflut canvas
     Wipe {
+        /// size of the image (formatted as NUMxNUM)
         size: String,
     },
 
     /// render and send text to the pixelflut canvas
     Text {
+        /// text to display
         text: String,
+        /// size in pts (DOESNT WORK ABOVE 30. I KNOW ABOUT THIS BUG, AND I HAVE NO CLUE WHY IT HAPPENS. SEND HELP)
         size: f32,
     },
 
+    /// send an animated gif to the pixelflut canvas
     Gif {
+        /// path to the gif
         path: String,
+        /// size of the gif (formatted as NUMxNUM)
         size: String,
     },
 }
@@ -58,9 +66,6 @@ fn main() -> io::Result<()> {
     let mut off = cli.offset.split('x');
     let xoff: u32 = off.next().unwrap().parse().unwrap();
     let yoff: u32 = off.next().unwrap().parse().unwrap();
-
-    let looping: bool = cli.looping; // whether to loop the draw cycle or not
-    let shuffle: bool = cli.shuffle; // whether to randomize the sequence of the commands, creating a dithering effect
 
     let mut frames: Vec<frame::Frame> = vec![];
     match cli.cmd {
@@ -97,19 +102,17 @@ fn main() -> io::Result<()> {
         }
     };
 
-    if shuffle {
+    if cli.shuffle {
         for mut frame in frames.clone() {
             frame.commands.shuffle(&mut thread_rng());
         }
     }
 
-    match looping {
+    match cli.looping {
         true => sender::sendloop(frames, &host),
 
         false => sender::send(frames, &host),
     }
-
-    // writer.flush().unwrap();
 
     Ok(())
 }

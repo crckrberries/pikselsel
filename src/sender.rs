@@ -19,7 +19,7 @@ pub fn send(frames: Vec<frame::Frame>, host: &str) {
             writer.write(cmd.as_bytes()).unwrap();
         }
 
-        thread::sleep(Duration::new(0, 100 * 1000000));
+        thread::sleep(Duration::new(0, frame.delay * 1000000));
     }
 }
 
