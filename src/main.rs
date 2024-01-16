@@ -3,6 +3,7 @@ use rand::seq::SliceRandom;
 use rand::*;
 use std::io::{self};
 mod cmd;
+mod frame;
 mod sender;
 mod text;
 
@@ -27,13 +28,26 @@ struct Cli {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     /// send an image to the pixelflut canvas
-    Img { path: String, size: String },
+    Img {
+        path: String,
+        size: String,
+    },
 
     /// wipe the pixelflut canvas
-    Wipe { size: String },
+    Wipe {
+        size: String,
+    },
 
     /// render and send text to the pixelflut canvas
-    Text { text: String, size: f32 },
+    Text {
+        text: String,
+        size: f32,
+    },
+
+    Gif {
+        path: String,
+        size: String,
+    },
 }
 
 fn main() -> io::Result<()> {
@@ -48,37 +62,51 @@ fn main() -> io::Result<()> {
     let looping: bool = cli.looping; // whether to loop the draw cycle or not
     let shuffle: bool = cli.shuffle; // whether to randomize the sequence of the commands, creating a dithering effect
 
-    let mut cmds: Vec<String>;
+    let mut frames: Vec<frame::Frame> = vec![];
     match cli.cmd {
         Commands::Img { path, size } => {
             let mut size = size.split('x');
             let sizex: u32 = size.next().unwrap().parse().unwrap();
             let sizey: u32 = size.next().unwrap().parse().unwrap();
-            let filename: String = path;
-            let img = cmd::read_image(filename.clone(), sizex, sizey); // reads image (check function def for details)
-            cmds = cmd::process_image(&img, xoff, yoff); // processes image, generating commands
+            let img = cmd::read_image(path, sizex, sizey);
+            let cmds = cmd::process_image(&img, xoff, yoff); // processes image, generating commands
+            frames.push(frame::Frame { commands: cmds, delay: 0})
         }
 
         Commands::Wipe { size } => {
             let mut size = size.split('x');
             let sizex: u32 = size.next().unwrap().parse().unwrap();
             let sizey: u32 = size.next().unwrap().parse().unwrap();
-            cmds = cmd::wipe(sizex, sizey); // wipes screen
+            let cmds = cmd::wipe(sizex, sizey); // wipes screen
+            frames.push(frame::Frame { commands: cmds, delay: 0})
         }
 
         Commands::Text { text, size } => {
-            cmds = cmd::process_image(&text::render_text(text, size, (255, 255, 255)), xoff, yoff)
+            let cmds =
+                cmd::process_image(&text::render_text(text, size, (255, 255, 255)), xoff, yoff);
+            frames.push(frame::Frame { commands: cmds, delay: 0})
+            
+        }
+
+        Commands::Gif { path, size } => {
+            let mut size = size.split('x');
+            let sizex: u32 = size.next().unwrap().parse().unwrap();
+            let sizey: u32 = size.next().unwrap().parse().unwrap();
+            let img = cmd::read_gif(path);
+            frames = cmd::process_gif(img, sizex, sizey);
         }
     };
 
     if shuffle {
-        cmds.shuffle(&mut thread_rng());
+        for mut frame in frames.clone() {
+            frame.commands.shuffle(&mut thread_rng());
+        }
     }
 
     match looping {
-        true => sender::sendloop(cmds, &host),
+        true => sender::sendloop(frames, &host),
 
-        false => sender::send(cmds, &host),
+        false => sender::send(frames, &host),
     }
 
     // writer.flush().unwrap();

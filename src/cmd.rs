@@ -1,8 +1,30 @@
+use std::fs::File;
+
 use colored::{self, Colorize};
-use image::{self, imageops::FilterType::Nearest, ImageBuffer};
-mod color;
+use image::{self, imageops::{FilterType::Nearest, self}, ImageBuffer, codecs::gif, AnimationDecoder};
+use crate::frame;
 
 // this module contains the command generation functions
+
+pub fn read_gif(filename: String) -> Vec<image::Frame> {
+    let gif = File::open(filename).expect("couldnt open gif");
+    let dec = gif::GifDecoder::new(gif).expect("thats not a gif!!");
+    let frames = dec.into_frames().collect_frames().expect("could not decode gif");
+
+    return frames;
+}
+
+pub fn process_gif(frames: Vec<image::Frame>, sizex: u32, sizey: u32) -> Vec<frame::Frame>{
+    let mut framelist: Vec<frame::Frame> = vec![];
+    for frame in frames {
+        let delay = frame.delay().numer_denom_ms().0;
+        let frame = imageops::resize(frame.buffer(), sizex, sizey, Nearest);
+        let cmds = process_image(&frame, 0, 0);
+        framelist.push(frame::Frame {commands: cmds, delay});
+    }
+
+    return framelist;
+}
 
 pub fn wipe(sizex: u32, sizey: u32) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
@@ -51,17 +73,13 @@ pub fn process_image(
                 "PX {} {} {}\n",
                 x + offsetx,
                 y + offsety,
-                color::Color::hexify_rgb(pixel[0], pixel[1], pixel[2], pixel[3])
+                frame::Color::hexify_rgb(pixel[0], pixel[1], pixel[2], pixel[3])
             );
-
             commands.push(str); // pushes to command to list of commands
         }
+
     }
-    println!(
-        "{} {} {} Parsed commands",
-        "[".bold().blue(),
-        "*".bold().red(),
-        "]".bold().blue()
-    );
+
+    println!("Processed frame");
     return commands;
 }

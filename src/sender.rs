@@ -1,8 +1,10 @@
-use std::io::{BufWriter, Write};
-use std::net::TcpStream;
 use colored::{self, Colorize};
+use std::io::{BufWriter, Write};
+use std::{thread, time::Duration};
+use std::net::TcpStream;
+use crate::frame;
 
-pub fn send(commands: Vec<String>, host: &str) {
+pub fn send(frames: Vec<frame::Frame>, host: &str) {
     let stream: TcpStream = TcpStream::connect(host).unwrap();
     let mut writer: BufWriter<&TcpStream> = BufWriter::new(&stream);
     println!(
@@ -12,13 +14,17 @@ pub fn send(commands: Vec<String>, host: &str) {
         "]".bold().blue(),
         host.bold().red().italic(),
     );
-    for cmd in commands {
-        writer.write(cmd.as_bytes()).unwrap();
+    for frame in frames {
+        for cmd in frame.commands {
+            writer.write(cmd.as_bytes()).unwrap();
+        }
+
+        thread::sleep(Duration::new(0, 100 * 1000000));
     }
 }
 
-pub fn sendloop(commands: Vec<String>, host: &str) {
+pub fn sendloop(frames: Vec<frame::Frame>, host: &str) {
     loop {
-        send(commands.clone(), host)
+        send(frames.clone(), host);
     }
 }
