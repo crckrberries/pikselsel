@@ -12,6 +12,8 @@ use rand::{seq::SliceRandom, thread_rng};
 
 // this module contains the command generation functions
 
+// pub fn read_canvas
+
 pub fn read_gif(filename: String) -> Vec<image::Frame> {
     let gif = File::open(filename).expect("couldnt open gif");
     let dec = gif::GifDecoder::new(gif).expect("thats not a gif!!");
@@ -27,6 +29,8 @@ pub fn process_gif(
     frames: Vec<image::Frame>,
     sizex: u32,
     sizey: u32,
+    xoff: u32,
+    yoff: u32,
     shuffle: bool,
 ) -> Vec<frame::Frame> {
     let mut framelist: Vec<frame::Frame> = vec![];
@@ -34,7 +38,7 @@ pub fn process_gif(
     for frame in frames {
         let delay = frame.delay().numer_denom_ms().0;
         let frame = imageops::resize(frame.buffer(), sizex, sizey, Nearest);
-        let cmds = process_image_delta(&frame, &buffer, 0, 0, shuffle);
+        let cmds = process_image_delta(&frame, &buffer, xoff, yoff, shuffle, 15);
         framelist.push(frame::Frame {
             commands: cmds,
             delay,
@@ -111,6 +115,7 @@ pub fn process_image_delta(
     offsetx: u32,
     offsety: u32,
     shuffle: bool,
+    compression: u8
 ) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
     for x in 0..image.width() {
@@ -118,9 +123,9 @@ pub fn process_image_delta(
             let pixel = image.get_pixel(x, y); // gets the pixel
             let bufpx = buffer.get_pixel(x, y);
 
-            if pixel[0].abs_diff(bufpx[0]) > 10
-                || pixel[1].abs_diff(bufpx[1]) > 10
-                || pixel[2].abs_diff(bufpx[2]) > 10
+            if pixel[0].abs_diff(bufpx[0]) > compression
+                || pixel[1].abs_diff(bufpx[1]) > compression
+                || pixel[2].abs_diff(bufpx[2]) > compression
             {
                 let str = format!(
                     // creates the command

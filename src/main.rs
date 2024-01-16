@@ -98,7 +98,7 @@ fn main() -> io::Result<()> {
             let sizex: u32 = size.next().unwrap().parse().unwrap();
             let sizey: u32 = size.next().unwrap().parse().unwrap();
             let img = cmd::read_gif(path);
-            frames = cmd::process_gif(img, sizex, sizey, cli.shuffle);
+            frames = cmd::process_gif(img, sizex, sizey, xoff, yoff, cli.shuffle);
         }
     };
 
