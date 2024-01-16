@@ -74,7 +74,7 @@ fn main() -> io::Result<()> {
             let sizex: u32 = size.next().unwrap().parse().unwrap();
             let sizey: u32 = size.next().unwrap().parse().unwrap();
             let img = cmd::read_image(path, sizex, sizey);
-            let cmds = cmd::process_image(&img, xoff, yoff); // processes image, generating commands
+            let cmds = cmd::process_image(&img, xoff, yoff, cli.shuffle); // processes image, generating commands
             frames.push(frame::Frame { commands: cmds, delay: 0})
         }
 
@@ -88,7 +88,7 @@ fn main() -> io::Result<()> {
 
         Commands::Text { text, size } => {
             let cmds =
-                cmd::process_image(&text::render_text(text, size, (255, 255, 255)), xoff, yoff);
+                cmd::process_image(&text::render_text(text, size, (255, 255, 255)), xoff, yoff, cli.shuffle);
             frames.push(frame::Frame { commands: cmds, delay: 0})
             
         }
@@ -98,7 +98,7 @@ fn main() -> io::Result<()> {
             let sizex: u32 = size.next().unwrap().parse().unwrap();
             let sizey: u32 = size.next().unwrap().parse().unwrap();
             let img = cmd::read_gif(path);
-            frames = cmd::process_gif(img, sizex, sizey);
+            frames = cmd::process_gif(img, sizex, sizey, cli.shuffle);
         }
     };
 

@@ -8,6 +8,7 @@ use image::{
     imageops::{self, FilterType::Nearest},
     AnimationDecoder, ImageBuffer,
 };
+use rand::{seq::SliceRandom, thread_rng};
 
 // this module contains the command generation functions
 
@@ -22,13 +23,18 @@ pub fn read_gif(filename: String) -> Vec<image::Frame> {
     return frames;
 }
 
-pub fn process_gif(frames: Vec<image::Frame>, sizex: u32, sizey: u32) -> Vec<frame::Frame> {
+pub fn process_gif(
+    frames: Vec<image::Frame>,
+    sizex: u32,
+    sizey: u32,
+    shuffle: bool,
+) -> Vec<frame::Frame> {
     let mut framelist: Vec<frame::Frame> = vec![];
     let mut buffer = image::ImageBuffer::new(sizex, sizey);
     for frame in frames {
         let delay = frame.delay().numer_denom_ms().0;
         let frame = imageops::resize(frame.buffer(), sizex, sizey, Nearest);
-        let cmds = process_image_delta(&frame, &buffer, 0, 0);
+        let cmds = process_image_delta(&frame, &buffer, 0, 0, shuffle);
         framelist.push(frame::Frame {
             commands: cmds,
             delay,
@@ -75,6 +81,7 @@ pub fn process_image(
     image: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     offsetx: u32,
     offsety: u32,
+    shuffle: bool,
 ) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
     for x in 0..image.width() {
@@ -91,7 +98,9 @@ pub fn process_image(
             commands.push(str); // pushes to command to list of commands
         }
     }
-
+    if shuffle {
+        commands.shuffle(&mut thread_rng())
+    }
     println!("Processed frame");
     return commands;
 }
@@ -101,13 +110,18 @@ pub fn process_image_delta(
     buffer: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     offsetx: u32,
     offsety: u32,
+    shuffle: bool,
 ) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
     for x in 0..image.width() {
         for y in 0..image.height() {
             let pixel = image.get_pixel(x, y); // gets the pixel
+            let bufpx = buffer.get_pixel(x, y);
 
-            if pixel != buffer.get_pixel(x, y) {
+            if pixel[0].abs_diff(bufpx[0]) > 10
+                || pixel[1].abs_diff(bufpx[1]) > 10
+                || pixel[2].abs_diff(bufpx[2]) > 10
+            {
                 let str = format!(
                     // creates the command
                     "PX {} {} {}\n",
@@ -119,7 +133,9 @@ pub fn process_image_delta(
             }
         }
     }
-
+    if shuffle {
+        commands.shuffle(&mut thread_rng())
+    }
     println!("Processed frame");
     return commands;
 }
