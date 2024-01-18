@@ -56,6 +56,7 @@ enum Commands {
         /// size of the gif (formatted as NUMxNUM)
         size: String,
     },
+
 }
 
 fn main() -> io::Result<()> {
@@ -74,7 +75,7 @@ fn main() -> io::Result<()> {
             let sizex: u32 = size.next().unwrap().parse().unwrap();
             let sizey: u32 = size.next().unwrap().parse().unwrap();
             let img = cmd::read_image(path, sizex, sizey);
-            let cmds = cmd::process_image(&img, xoff, yoff, cli.shuffle); // processes image, generating commands
+            let cmds = cmd::process_image(&img, xoff, yoff); // processes image, generating commands
             frames.push(frame::Frame { commands: cmds, delay: 0})
         }
 
@@ -88,7 +89,7 @@ fn main() -> io::Result<()> {
 
         Commands::Text { text, size } => {
             let cmds =
-                cmd::process_image(&text::render_text(text, size, (255, 255, 255)), xoff, yoff, cli.shuffle);
+                cmd::process_image(&text::render_text(text, size, (255, 255, 255)), xoff, yoff);
             frames.push(frame::Frame { commands: cmds, delay: 0})
             
         }
@@ -98,12 +99,13 @@ fn main() -> io::Result<()> {
             let sizex: u32 = size.next().unwrap().parse().unwrap();
             let sizey: u32 = size.next().unwrap().parse().unwrap();
             let img = cmd::read_gif(path);
-            frames = cmd::process_gif(img, sizex, sizey, xoff, yoff, cli.shuffle);
+            frames = cmd::process_gif(img, sizex, sizey, xoff, yoff);
         }
+
     };
 
     if cli.shuffle {
-        for mut frame in frames.clone() {
+        for frame in &mut frames {
             frame.commands.shuffle(&mut thread_rng());
         }
     }
@@ -111,7 +113,7 @@ fn main() -> io::Result<()> {
     match cli.looping {
         true => sender::sendloop(frames, &host),
 
-        false => sender::send(frames, &host),
+        false => sender::send(&frames, &host),
     }
 
     Ok(())

@@ -4,7 +4,7 @@ use std::{thread, time::Duration};
 use std::net::TcpStream;
 use crate::frame;
 
-pub fn send(frames: Vec<frame::Frame>, host: &str) {
+pub fn send(frames: &Vec<frame::Frame>, host: &str) {
     let stream: TcpStream = TcpStream::connect(host).unwrap();
     let mut writer: BufWriter<&TcpStream> = BufWriter::new(&stream);
     println!(
@@ -15,7 +15,7 @@ pub fn send(frames: Vec<frame::Frame>, host: &str) {
         host.bold().red().italic(),
     );
     for frame in frames {
-        for cmd in frame.commands {
+        for cmd in &frame.commands {
             writer.write(cmd.as_bytes()).unwrap();
         }
 
@@ -25,6 +25,6 @@ pub fn send(frames: Vec<frame::Frame>, host: &str) {
 
 pub fn sendloop(frames: Vec<frame::Frame>, host: &str) {
     loop {
-        send(frames.clone(), host);
+        send(&frames, host);
     }
 }

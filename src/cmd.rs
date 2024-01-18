@@ -1,5 +1,4 @@
 use std::fs::File;
-
 use crate::frame;
 use colored::{self, Colorize};
 use image::{
@@ -8,11 +7,8 @@ use image::{
     imageops::{self, FilterType::Nearest},
     AnimationDecoder, ImageBuffer,
 };
-use rand::{seq::SliceRandom, thread_rng};
 
 // this module contains the command generation functions
-
-// pub fn read_canvas
 
 pub fn read_gif(filename: String) -> Vec<image::Frame> {
     let gif = File::open(filename).expect("couldnt open gif");
@@ -30,15 +26,14 @@ pub fn process_gif(
     sizex: u32,
     sizey: u32,
     xoff: u32,
-    yoff: u32,
-    shuffle: bool,
+    yoff: u32
 ) -> Vec<frame::Frame> {
     let mut framelist: Vec<frame::Frame> = vec![];
     let mut buffer = image::ImageBuffer::new(sizex, sizey);
     for frame in frames {
         let delay = frame.delay().numer_denom_ms().0;
         let frame = imageops::resize(frame.buffer(), sizex, sizey, Nearest);
-        let cmds = process_image_delta(&frame, &buffer, xoff, yoff, shuffle, 15);
+        let cmds = process_image_delta(&frame, &buffer, xoff, yoff, 15);
         framelist.push(frame::Frame {
             commands: cmds,
             delay,
@@ -85,7 +80,6 @@ pub fn process_image(
     image: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     offsetx: u32,
     offsety: u32,
-    shuffle: bool,
 ) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
     for x in 0..image.width() {
@@ -102,9 +96,9 @@ pub fn process_image(
             commands.push(str); // pushes to command to list of commands
         }
     }
-    if shuffle {
-        commands.shuffle(&mut thread_rng())
-    }
+    // if shuffle {
+    //     commands.shuffle(&mut thread_rng())
+    // }
     println!("Processed frame");
     return commands;
 }
@@ -114,7 +108,6 @@ pub fn process_image_delta(
     buffer: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     offsetx: u32,
     offsety: u32,
-    shuffle: bool,
     compression: u8
 ) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
@@ -138,9 +131,7 @@ pub fn process_image_delta(
             }
         }
     }
-    if shuffle {
-        commands.shuffle(&mut thread_rng())
-    }
+
     println!("Processed frame");
     return commands;
 }

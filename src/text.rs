@@ -1,14 +1,13 @@
-use image::{DynamicImage, Rgba, ImageBuffer};
-use rusttype::{Font, point, Scale};
+use image::{DynamicImage, ImageBuffer, Rgb, Rgba};
+use rusttype::{point, Font, Scale};
 
 pub fn render_text(text: String, s: f32, color: (u8, u8, u8)) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-    let margin = 80;
-    let font = Font::try_from_bytes(include_bytes!("../fonts/Arial.ttf") as &[u8]).expect("oh nooooooo");
+    let margin = 20;
+    let font =
+        Font::try_from_bytes(include_bytes!("../fonts/Arial.ttf") as &[u8]).expect("oh nooooooo");
     let scale = Scale::uniform(s);
     let vmetrics = font.v_metrics(scale);
-    let glyphs: Vec<_> = font
-        .layout(&text, scale, point(20.0, 20.0))
-        .collect();
+    let glyphs: Vec<_> = font.layout(&text, scale, point(20.0, 20.0)).collect();
 
     let glyphs_height: u32 = (vmetrics.ascent - vmetrics.descent).ceil() as u32;
     let glyphs_width = {
@@ -23,6 +22,12 @@ pub fn render_text(text: String, s: f32, color: (u8, u8, u8)) -> ImageBuffer<Rgb
         (max_x - min_x) as u32
     };
     let mut img = DynamicImage::new_rgba8(glyphs_width + margin, glyphs_height + margin).to_rgba8();
+
+    for x in 1..img.width() {
+        for y in 1..img.height() {
+            img.put_pixel(x, y, Rgba((32, 32, 32, 255).into()))
+        }
+    }
 
     for g in glyphs {
         if let Some(bound) = g.pixel_bounding_box() {
