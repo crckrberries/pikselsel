@@ -1,4 +1,4 @@
-use image::{DynamicImage, ImageBuffer, Rgb, Rgba};
+use image::{DynamicImage, ImageBuffer, Rgba};
 use rusttype::{point, Font, Scale};
 
 pub fn render_text(text: String, s: f32, color: (u8, u8, u8)) -> ImageBuffer<Rgba<u8>, Vec<u8>> {

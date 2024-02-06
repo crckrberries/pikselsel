@@ -73,7 +73,7 @@ fn main() -> io::Result<()> {
         Commands::Img { path, size } => {
             let mut size = size.split('x');
             let sizex: u32 = size.next().unwrap().parse().unwrap();
-            let sizey: u32 = size.next().unwrap().parse().unwrap();
+            let sizey: u32 = size.next().unwrap().parse().unwrap(); 
             let img = cmd::read_image(path, sizex, sizey);
             let cmds = cmd::process_image(&img, xoff, yoff); // processes image, generating commands
             frames.push(frame::Frame { commands: cmds, delay: 0})

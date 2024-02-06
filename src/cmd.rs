@@ -11,7 +11,7 @@ use image::{
 // this module contains the command generation functions
 
 pub fn read_gif(filename: String) -> Vec<image::Frame> {
-    let gif = File::open(filename).expect("couldnt open gif");
+    let gif = File::open(filename).expect("couldn't open gif");
     let dec = gif::GifDecoder::new(gif).expect("thats not a gif!!");
     let frames = dec
         .into_frames()
@@ -96,9 +96,7 @@ pub fn process_image(
             commands.push(str); // pushes to command to list of commands
         }
     }
-    // if shuffle {
-    //     commands.shuffle(&mut thread_rng())
-    // }
+    
     println!("Processed frame");
     return commands;
 }

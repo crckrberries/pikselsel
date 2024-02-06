@@ -1,8 +1,8 @@
+use crate::frame;
 use colored::{self, Colorize};
 use std::io::{BufWriter, Write};
-use std::{thread, time::Duration};
 use std::net::TcpStream;
-use crate::frame;
+use std::{thread, time::Duration};
 
 pub fn send(frames: &Vec<frame::Frame>, host: &str) {
     let stream: TcpStream = TcpStream::connect(host).unwrap();
@@ -15,9 +15,8 @@ pub fn send(frames: &Vec<frame::Frame>, host: &str) {
         host.bold().red().italic(),
     );
     for frame in frames {
-        for cmd in &frame.commands {
-            writer.write(cmd.as_bytes()).unwrap();
-        }
+        let cmds = frame.commands.join("");
+        writer.write(cmds.as_bytes()).unwrap();
 
         thread::sleep(Duration::new(0, frame.delay * 1000000));
     }
