@@ -15,17 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
 
-      
+
   announce:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Send image
-      run: cargo run --release -- pixelflut.uwu.industries:1234 0x0 50x50 img src/test/idiot.png
+      - uses: actions/checkout@v4
+      - name: Send image
+        run: cargo run -- pixelflut.uwu.industries:1234 0x0 100x100 img src/test/idiot.png # not --release cause im gangsta
