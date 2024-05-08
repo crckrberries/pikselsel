@@ -9,27 +9,27 @@ pub struct Color {
 }
 
 impl Color {
-    // pub fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color {
-    //     return Color {
-    //         r,
-    //         g,
-    //         b,
-    //         a
-    //     }
-    // }
-
-    // pub fn hexify(c: Color) -> String {
-    //     return String::from(format!("{:02x}{:02x}{:02x}", c.r, c.g, c.b))
-    // }
-
     pub fn hexify_rgb(r: u8, g: u8, b: u8, a: u8) -> String {
         // turns rgb values into a hexadecimal color code
-        return String::from(format!("{:02x}{:02x}{:02x}{:02x}", r, g, b, a));
+        format!("{:02x}{:02x}{:02x}{:02x}", r, g, b, a)
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Frame {
     pub commands: Vec<String>,
-    pub delay: u32
+    pub delay: u32,
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::frame::*;
+
+    #[test]
+    fn test_hexify() {
+        assert_eq!(
+            Color::hexify_rgb(255, 178, 77, 255),
+            String::from("ffb24dff")
+        );
+    }
 }
