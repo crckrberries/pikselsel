@@ -143,7 +143,20 @@ mod tests {
     fn test_delta_compression() {
         let correct = [
             Frame {
-                commands: [].to_vec(),
+                commands: [
+                    "PX 0 0 000000ff\n",
+                    "PX 0 1 000000ff\n",
+                    "PX 0 2 000000ff\n",
+                    "PX 0 3 000000ff\n",
+                    "PX 0 4 000000ff\n",
+                    "PX 0 5 000000ff\n",
+                    "PX 0 6 000000ff\n",
+                    "PX 0 7 000000ff\n",
+                    "PX 0 8 000000ff\n",
+                    "PX 0 9 000000ff\n",
+                ]
+                .map(|x| x.to_string())
+                .to_vec(),
                 delay: 100,
             },
             Frame {
@@ -170,6 +183,8 @@ mod tests {
 
         let gif = read_gif("src/test/deltatest.gif");
         let cmds = process_gif(gif, [1, 10], [0, 0]);
+
+        dbg!(&cmds);
 
         assert_eq!(cmds, correct)
     }
