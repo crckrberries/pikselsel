@@ -28,6 +28,7 @@ pub fn process_gif(
     let mut frame_list: Vec<frame::Frame> = vec![];
     let mut buffer = image::ImageBuffer::new(size[0], size[1]);
     let mut firstframe = true; // hack
+                               // todo dont
     for frame in frames {
         let delay = frame.delay().numer_denom_ms().0;
         let frame = imageops::resize(frame.buffer(), size[0], size[1], Nearest);
