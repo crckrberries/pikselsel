@@ -72,7 +72,9 @@ fn main() -> io::Result<()> {
     match cli.cmd {
         Commands::Img { path } => {
             let img = cmd::read_image(&path, size);
-            let cmds = cmd::process_image(&img, offset); // processes image, generating commands
+            let buffer = image::ImageBuffer::new(size[0], size[1]);
+
+            let cmds = cmd::process_image(&img, &buffer, offset, 0); // processes image, generating commands
             frames.push(frame::Frame {
                 commands: cmds,
                 delay: 0,

@@ -9,7 +9,6 @@ use image::{
 use std::fs::File;
 
 // this module contains the command generation functions
-
 pub fn read_gif(path: &str) -> Vec<image::Frame> {
     let gif = File::open(path).expect("couldn't open gif");
     let dec = gif::GifDecoder::new(gif).expect("that's not a gif!!");
@@ -31,7 +30,10 @@ pub fn process_gif(
     for frame in frames {
         let delay = frame.delay().numer_denom_ms().0;
         let frame = imageops::resize(frame.buffer(), size[0], size[1], Nearest);
-        let cmds = process_image_delta(&frame, &buffer, offset, 10);
+
+        // compression value is hardcoded
+        // todo: dont do that
+        let cmds = process_image(&frame, &buffer, offset, 10);
         frame_list.push(frame::Frame {
             commands: cmds,
             delay,
@@ -46,7 +48,7 @@ pub fn wipe(size: [u32; 2]) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
     for x in 0..size[0] {
         for y in 0..size[1] {
-            let str = format!("PX {} {} 202020\n", x, y,);
+            let str = format!("PX {} {} 202020\n", x, y,); // #202020 goated color
             commands.push(str);
         }
     }
@@ -69,30 +71,6 @@ pub fn read_image(path: &str, size: [u32; 2]) -> ImageBuffer<image::Rgba<u8>, Ve
 }
 
 pub fn process_image(
-    image: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-    offset: [u32; 2],
-) -> Vec<String> {
-    let mut commands: Vec<String> = Vec::new();
-    for x in 0..image.width() {
-        for y in 0..image.height() {
-            let pixel = image.get_pixel(x, y); // gets the pixel
-
-            let str = format!(
-                // creates the command
-                "PX {} {} {}\n",
-                x + offset[0],
-                y + offset[1],
-                frame::Color::hexify_rgb(pixel[0], pixel[1], pixel[2], pixel[3])
-            );
-            commands.push(str); // pushes to command to list of commands
-        }
-    }
-
-    println!("Processed frame");
-    commands
-}
-
-pub fn process_image_delta(
     image: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     buffer: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     offset: [u32; 2],
@@ -151,7 +129,9 @@ mod tests {
         ];
 
         let img = read_image("src/test/test.jpg", [4, 4]);
-        let cmds = process_image(&img, [0, 0]);
+        let buffer = image::ImageBuffer::new(4, 4);
+
+        let cmds = process_image(&img, &buffer, [0, 0], 0);
         assert_eq!(cmds, correct);
     }
 
