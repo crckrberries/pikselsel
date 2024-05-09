@@ -27,18 +27,20 @@ pub fn process_gif(
 ) -> Vec<frame::Frame> {
     let mut frame_list: Vec<frame::Frame> = vec![];
     let mut buffer = image::ImageBuffer::new(size[0], size[1]);
+    let mut firstframe = true; // hack
     for frame in frames {
         let delay = frame.delay().numer_denom_ms().0;
         let frame = imageops::resize(frame.buffer(), size[0], size[1], Nearest);
 
         // compression value is hardcoded
         // todo: dont do that
-        let cmds = process_image(&frame, &buffer, offset, 10);
+        let cmds = process_image(&frame, &buffer, offset, 10, firstframe);
         frame_list.push(frame::Frame {
             commands: cmds,
             delay,
         });
         buffer = frame;
+        firstframe = false;
     }
 
     frame_list
@@ -75,6 +77,7 @@ pub fn process_image(
     buffer: &ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     offset: [u32; 2],
     compression: u8,
+    first: bool,
 ) -> Vec<String> {
     let mut commands: Vec<String> = Vec::new();
     for x in 0..image.width() {
@@ -85,6 +88,7 @@ pub fn process_image(
             if pixel[0].abs_diff(buf_px[0]) > compression
                 || pixel[1].abs_diff(buf_px[1]) > compression
                 || pixel[2].abs_diff(buf_px[2]) > compression
+                || first
             {
                 let str = format!(
                     // creates the command
@@ -131,7 +135,7 @@ mod tests {
         let img = read_image("src/test/test.jpg", [4, 4]);
         let buffer = image::ImageBuffer::new(4, 4);
 
-        let cmds = process_image(&img, &buffer, [0, 0], 0);
+        let cmds = process_image(&img, &buffer, [0, 0], 0, true);
         assert_eq!(cmds, correct);
     }
 
