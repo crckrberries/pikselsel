@@ -28,4 +28,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Send image
-        run: cargo run -- pixelflut.uwu.industries:1234 0x0 100x100 img src/test/idiot.png # not --release cause im gangsta
+        run: cargo run -- pixelflut.uwu.industries:1234 0x0 347x219 img src/test/announcement.png # not --release cause im gangsta
